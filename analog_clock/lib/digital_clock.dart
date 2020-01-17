@@ -21,7 +21,7 @@ final _lightTheme = {
 };
 
 final _darkTheme = {
-  _Element.background: Colors.black,
+  _Element.background: Colors.grey,
   _Element.text: Colors.white,
   _Element.shadow: Color(0xFF174EA6),
 };

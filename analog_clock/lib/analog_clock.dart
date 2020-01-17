@@ -10,8 +10,8 @@ import 'package:flutter/semantics.dart';
 import 'package:intl/intl.dart';
 import 'package:vector_math/vector_math_64.dart' show radians;
 
-import 'container_hand.dart';
-import 'drawn_hand.dart';
+// import 'container_hand.dart';
+// import 'drawn_hand.dart';
 
 /// Total distance traveled by a second or a minute hand, each second or minute,
 /// respectively.
@@ -19,6 +19,40 @@ final radiansPerTick = radians(360 / 60);
 
 /// Total distance traveled by an hour hand, each hour, in radians.
 final radiansPerHour = radians(360 / 12);
+
+enum _Element {
+  background,
+  text,
+  shadow,
+  primaryColor,
+  highlightColor,
+  accentColor,
+  backgroundColor,
+}
+
+final _lightTheme = {
+  _Element.background: Color(0xFF81B3FE),
+  _Element.text: Colors.white,
+  _Element.shadow: Colors.black,
+  _Element.primaryColor: Color(0xFF4285F4),
+  // Minute hand.
+  _Element.highlightColor: Color(0xFF8AB4F8),
+  // Second hand.
+  _Element.accentColor: Color(0xFF669DF6),
+  _Element.backgroundColor: Color(0xFFD2E3FC),
+};
+
+final _darkTheme = {
+  _Element.background: Colors.grey,
+  _Element.text: Colors.white,
+  _Element.shadow: Color(0xFF174EA6),
+  _Element.primaryColor: Color(0xFFD2E3FC),
+  // Minute hand.
+  _Element.highlightColor: Color(0xFF4285F4),
+  // Second hand.
+  _Element.accentColor: Color(0xFF8AB4F8),
+  _Element.backgroundColor: Color(0xFF3C4043),
+};
 
 /// A basic analog clock.
 ///
@@ -88,33 +122,13 @@ class _AnalogClockState extends State<AnalogClock> {
 
   @override
   Widget build(BuildContext context) {
-    // There are many ways to apply themes to your clock. Some are:
-    //  - Inherit the parent Theme (see ClockCustomizer in the
-    //    flutter_clock_helper package).
-    //  - Override the Theme.of(context).colorScheme.
-    //  - Create your own [ThemeData], demonstrated in [AnalogClock].
-    //  - Create a map of [Color]s to custom keys, demonstrated in
-    //    [DigitalClock].
-    final customTheme = Theme.of(context).brightness == Brightness.light
-        ? Theme.of(context).copyWith(
-            // Hour hand.
-            primaryColor: Color(0xFF4285F4),
-            // Minute hand.
-            highlightColor: Color(0xFF8AB4F8),
-            // Second hand.
-            accentColor: Color(0xFF669DF6),
-            backgroundColor: Color(0xFFD2E3FC),
-          )
-        : Theme.of(context).copyWith(
-            primaryColor: Color(0xFFD2E3FC),
-            highlightColor: Color(0xFF4285F4),
-            accentColor: Color(0xFF8AB4F8),
-            backgroundColor: Color(0xFF3C4043),
-          );
+    final colors = Theme.of(context).brightness == Brightness.light
+        ? _lightTheme
+        : _darkTheme;
 
     final time = DateFormat.Hms().format(DateTime.now());
     final weatherInfo = DefaultTextStyle(
-      style: TextStyle(color: customTheme.primaryColor),
+      style: TextStyle(color: colors[_Element.primaryColor]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -132,39 +146,98 @@ class _AnalogClockState extends State<AnalogClock> {
         value: time,
       ),
       child: Container(
-        color: customTheme.backgroundColor,
+        color: colors[
+            _Element.backgroundColor], //Here we will update the BG Gradient
         child: Stack(
           children: [
-            // Example of a hand drawn with [CustomPainter].
-            DrawnHand(
-              color: customTheme.accentColor,
-              thickness: 4,
-              size: 1,
-              angleRadians: _now.second * radiansPerTick,
-            ),
-            DrawnHand(
-              color: customTheme.highlightColor,
-              thickness: 16,
-              size: 0.9,
-              angleRadians: _now.minute * radiansPerTick,
-            ),
-            // Example of a hand drawn with [Container].
-            ContainerHand(
-              color: Colors.transparent,
-              size: 0.5,
-              angleRadians: _now.hour * radiansPerHour +
-                  (_now.minute / 60) * radiansPerHour,
-              child: Transform.translate(
-                offset: Offset(0.0, -60.0),
-                child: Container(
-                  width: 32,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: customTheme.primaryColor,
-                  ),
-                ),
+            Center(
+              child: Image(
+                image: AssetImage('assets/images/clock_frame_light.png'),
               ),
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Container(width: 148,),
+                Container(
+                  /// Small Dial Center
+                  width: 53,
+                  // color: Colors.green.withOpacity(0.5),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          color: Colors.pink.withOpacity(0.5),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          color: Colors.cyan.withOpacity(0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 111,
+                ),
+                Container(
+                  /// Main Dial Center
+                  width: 184,
+                  // color: Colors.green.withOpacity(0.5),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          color: Colors.pink.withOpacity(0.5),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          color: Colors.cyan.withOpacity(0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+              ],
+            ),
+
+            // Example of a hand drawn with [CustomPainter].
+            // DrawnHand(
+            //   color: colors[_Element.accentColor],
+            //   thickness: 4,
+            //   size: 1,
+            //   angleRadians: _now.second * radiansPerTick,
+            // ),
+            // DrawnHand(
+            //   color: colors[_Element.highlightColor],
+            //   thickness: 4,
+            //   size: 0.9,
+            //   angleRadians: _now.minute * radiansPerTick,
+            // ),
+            // // Example of a hand drawn with [Container].
+            // ContainerHand(
+            //   color: Colors.transparent,
+            //   size: 0.5,
+            //   angleRadians: _now.hour * radiansPerHour +
+            //       (_now.minute / 60) * radiansPerHour,
+            //   child: Transform.translate(
+            //     offset: Offset(0.0, 75),
+            //     child: Container(
+            //       width: 4,
+            //       height: 150,
+            //       decoration: BoxDecoration(
+            //         color: colors[_Element.primaryColor],
+            //       ),
+            //     ),
+            //   ),
+            // ),
             Positioned(
               left: 0,
               bottom: 0,
