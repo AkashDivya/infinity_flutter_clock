@@ -139,7 +139,6 @@ class _AnalogClockState extends State<AnalogClock> {
         ],
       ),
     );
-
     return Semantics.fromProperties(
       properties: SemanticsProperties(
         label: 'Analog clock with time $time',
@@ -158,12 +157,13 @@ class _AnalogClockState extends State<AnalogClock> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Container(width: 148,),
-                Container(
-                  /// Small Dial Center
-                  width: 53,
-                  // color: Colors.green.withOpacity(0.5),
-                  child: Row(
+                Expanded(
+                  flex: 280,
+                  child: Container(color: Colors.yellow.withOpacity(0.5)),
+                ),
+                Expanded(
+                  flex: 158,
+                  child: Container(child: Row(
                     children: <Widget>[
                       Expanded(
                         flex: 1,
@@ -178,16 +178,15 @@ class _AnalogClockState extends State<AnalogClock> {
                         ),
                       ),
                     ],
-                  ),
+                  ),),
                 ),
-                Container(
-                  width: 111,
+                Expanded(
+                  flex: 364,
+                  child: Container(color: Colors.yellow.withOpacity(0.5)),
                 ),
-                Container(
-                  /// Main Dial Center
-                  width: 184,
-                  // color: Colors.green.withOpacity(0.5),
-                  child: Row(
+                Expanded(
+                  flex: 588,
+                  child: Container(child: Row(
                     children: <Widget>[
                       Expanded(
                         flex: 1,
@@ -202,9 +201,60 @@ class _AnalogClockState extends State<AnalogClock> {
                         ),
                       ),
                     ],
-                  ),
+                  ),),
                 ),
-                
+                Expanded(
+                  flex: 275,
+                  child: Container(color: Colors.yellow.withOpacity(0.5)),
+                ),
+
+
+
+                // Container(
+                //   /// Small Dial Center
+                //   width: 53,
+                //   // color: Colors.green.withOpacity(0.5),
+                //   child: Row(
+                //     children: <Widget>[
+                //       Expanded(
+                //         flex: 1,
+                //         child: Container(
+                //           color: Colors.pink.withOpacity(0.5),
+                //         ),
+                //       ),
+                //       Expanded(
+                //         flex: 1,
+                //         child: Container(
+                //           color: Colors.cyan.withOpacity(0.5),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // Container(
+                //   width: 111,
+                // ),
+                // Container(
+                //   /// Main Dial Center
+                //   width: 184,
+                //   // color: Colors.green.withOpacity(0.5),
+                //   child: Row(
+                //     children: <Widget>[
+                //       Expanded(
+                //         flex: 1,
+                //         child: Container(
+                //           color: Colors.pink.withOpacity(0.5),
+                //         ),
+                //       ),
+                //       Expanded(
+                //         flex: 1,
+                //         child: Container(
+                //           color: Colors.cyan.withOpacity(0.5),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
 
