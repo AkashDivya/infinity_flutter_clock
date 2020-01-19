@@ -10,9 +10,6 @@ import 'package:flutter/semantics.dart';
 import 'package:intl/intl.dart';
 import 'package:vector_math/vector_math_64.dart' show radians;
 
-// import 'container_hand.dart';
-// import 'drawn_hand.dart';
-
 import 'custom_hand.dart';
 import 'stud.dart';
 
@@ -22,6 +19,9 @@ final radiansPerTick = radians(360 / 60);
 
 /// Total distance traveled by an hour hand, each hour, in radians.
 final radiansPerHour = radians(360 / 12);
+
+Animation<double> rotateAm2Pm;
+AnimationController amPmHandController;
 
 enum _Element {
   bgColor1,
@@ -72,12 +72,14 @@ class AnalogClock extends StatefulWidget {
   _AnalogClockState createState() => _AnalogClockState();
 }
 
-class _AnalogClockState extends State<AnalogClock> {
+class _AnalogClockState extends State<AnalogClock>
+    with SingleTickerProviderStateMixin {
   var _now = DateTime.now();
   var _temperature = '';
   var _temperatureRange = '';
   var _condition = '';
   var _location = '';
+  var _meridiem;
   Timer _timer;
 
   @override
@@ -85,6 +87,11 @@ class _AnalogClockState extends State<AnalogClock> {
     super.initState();
     widget.model.addListener(_updateModel);
     // Set the initial values.
+    amPmHandController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 200));
+    rotateAm2Pm =
+        Tween<double>(begin: -0.25, end: 0).animate(amPmHandController);
+    _updateMeridiem();
     _updateTime();
     _updateModel();
   }
@@ -117,6 +124,7 @@ class _AnalogClockState extends State<AnalogClock> {
   void _updateTime() {
     setState(() {
       _now = DateTime.now();
+      _switchMeridiem();
       // Update once per second. Make sure to do it at the beginning of each
       // new second, so that the clock is accurate.
       _timer = Timer(
@@ -124,6 +132,24 @@ class _AnalogClockState extends State<AnalogClock> {
         _updateTime,
       );
     });
+  }
+
+  void _updateMeridiem() {
+    _meridiem = _now.hour < 12 ? 'am' : 'pm';
+    _meridiem == 'am'
+        ? amPmHandController.reverse()
+        : amPmHandController.forward();
+  }
+
+  void _switchMeridiem() {
+    _updateMeridiem();
+    if (_now.hour == 12 && _now.minute == 00 && _meridiem == 'am') {
+      amPmHandController.forward();
+      _meridiem = 'pm';
+    } else if (_now.hour == 00 && _now.minute == 00 && _meridiem == 'pm') {
+      amPmHandController.reverse();
+      _meridiem = 'am';
+    }
   }
 
   Widget _analogClockLandscape({@required colors}) {
@@ -156,12 +182,7 @@ class _AnalogClockState extends State<AnalogClock> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: <Widget>[
-                      customHand(
-                        xOffset: 0,
-                        yOffset: -6.5,
-                        imagePath: 'assets/images/hand_ampm.png',
-                        angleRadians: 0.0,
-                      ),
+                      customHandAmPm(rotationAnimation: rotateAm2Pm),
                       stud(context),
                     ],
                   ),

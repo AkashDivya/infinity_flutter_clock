@@ -48,6 +48,7 @@ class _DigitalClockState extends State<DigitalClock> {
     widget.model.addListener(_updateModel);
     _updateTime();
     _updateModel();
+    print(DateFormat('HH').format(DateTime.now()));
   }
 
   @override
@@ -105,7 +106,7 @@ class _DigitalClockState extends State<DigitalClock> {
     final offset = -fontSize / 7;
     final defaultStyle = TextStyle(
       color: colors[_Element.text],
-      fontFamily: 'PressStart2P',
+      // fontFamily: 'PressStart2P',
       fontSize: fontSize,
       shadows: [
         Shadow(
