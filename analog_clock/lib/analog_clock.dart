@@ -10,8 +10,8 @@ import 'package:flutter/semantics.dart';
 import 'package:intl/intl.dart';
 import 'package:vector_math/vector_math_64.dart' show radians;
 
-// import 'container_hand.dart';
-// import 'drawn_hand.dart';
+import 'container_hand.dart';
+import 'drawn_hand.dart';
 
 /// Total distance traveled by a second or a minute hand, each second or minute,
 /// respectively.
@@ -21,7 +21,8 @@ final radiansPerTick = radians(360 / 60);
 final radiansPerHour = radians(360 / 12);
 
 enum _Element {
-  background,
+  bgColor1,
+  bgColor2,
   text,
   shadow,
   primaryColor,
@@ -31,7 +32,8 @@ enum _Element {
 }
 
 final _lightTheme = {
-  _Element.background: Color(0xFF81B3FE),
+  _Element.bgColor1: Color(0xFFc0c2c4),
+  _Element.bgColor2: Color(0xFFe4e5e6),
   _Element.text: Colors.white,
   _Element.shadow: Colors.black,
   _Element.primaryColor: Color(0xFF4285F4),
@@ -43,7 +45,8 @@ final _lightTheme = {
 };
 
 final _darkTheme = {
-  _Element.background: Colors.grey,
+  _Element.bgColor1: Color(0xFF414042),
+  _Element.bgColor2: Color(0xFF5f6062),
   _Element.text: Colors.white,
   _Element.shadow: Color(0xFF174EA6),
   _Element.primaryColor: Color(0xFFD2E3FC),
@@ -120,6 +123,92 @@ class _AnalogClockState extends State<AnalogClock> {
     });
   }
 
+  Widget _analogClockLandscape({@required colors}) {
+    return Container(
+      // Here we will update the BG Gradient
+
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // This Stack will contain Clock render with Dials.
+          Center(
+            // Here clock render is placed.
+            child: Image(
+              image: AssetImage(Theme.of(context).brightness == Brightness.light
+                  ? 'assets/images/clock_frame_light.png'
+                  : 'assets/images/clock_frame_dark.png'),
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+          Row(
+            // Here dials are placed.
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                // AM, PM Dial
+                width: 54,
+                height: 54,
+                color: Colors.pink.withOpacity(0.5),
+              ),
+              SizedBox(width: 115),
+              Container(
+                // Main clock's Dial
+                width: 189,
+                height: 189,
+                child: Center(
+                    child: Stack(
+                  children: <Widget>[
+                    // Example of a hand drawn with [CustomPainter].
+                    DrawnHand(
+                      color: colors[_Element.accentColor],
+                      thickness: 4,
+                      size: 1,
+                      angleRadians: _now.second * radiansPerTick,
+                    ),
+                    DrawnHand(
+                      color: colors[_Element.highlightColor],
+                      thickness: 4,
+                      size: 0.9,
+                      angleRadians: _now.minute * radiansPerTick,
+                    ),
+                    // Example of a hand drawn with [Container].
+                    ContainerHand(
+                      color: Colors.transparent,
+                      size: 0.5,
+                      angleRadians: _now.hour * radiansPerHour +
+                          (_now.minute / 60) * radiansPerHour,
+                      child: Transform.translate(
+                        offset: Offset(0.0, 75),
+                        child: Container(
+                          width: 4,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: colors[_Element.primaryColor],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
+              ),
+            ],
+          ),
+        ],
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: <Color>[
+            colors[_Element.bgColor1],
+            colors[_Element.bgColor2],
+          ],
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).brightness == Brightness.light
@@ -144,160 +233,18 @@ class _AnalogClockState extends State<AnalogClock> {
         label: 'Analog clock with time $time',
         value: time,
       ),
-      child: Container(
-        color: colors[
-            _Element.backgroundColor], //Here we will update the BG Gradient
-        child: Stack(
-          children: [
-            Center(
-              child: Image(
-                image: AssetImage('assets/images/clock_frame_light.png'),
-              ),
+      child: Stack(
+        children: <Widget>[
+          _analogClockLandscape(colors: colors),
+          Positioned(
+            left: 0,
+            bottom: 0,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: weatherInfo,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Expanded(
-                  flex: 280,
-                  child: Container(color: Colors.yellow.withOpacity(0.5)),
-                ),
-                Expanded(
-                  flex: 158,
-                  child: Container(child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: Container(
-                          color: Colors.pink.withOpacity(0.5),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Container(
-                          color: Colors.cyan.withOpacity(0.5),
-                        ),
-                      ),
-                    ],
-                  ),),
-                ),
-                Expanded(
-                  flex: 364,
-                  child: Container(color: Colors.yellow.withOpacity(0.5)),
-                ),
-                Expanded(
-                  flex: 588,
-                  child: Container(child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 1,
-                        child: Container(
-                          color: Colors.pink.withOpacity(0.5),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Container(
-                          color: Colors.cyan.withOpacity(0.5),
-                        ),
-                      ),
-                    ],
-                  ),),
-                ),
-                Expanded(
-                  flex: 275,
-                  child: Container(color: Colors.yellow.withOpacity(0.5)),
-                ),
-
-
-
-                // Container(
-                //   /// Small Dial Center
-                //   width: 53,
-                //   // color: Colors.green.withOpacity(0.5),
-                //   child: Row(
-                //     children: <Widget>[
-                //       Expanded(
-                //         flex: 1,
-                //         child: Container(
-                //           color: Colors.pink.withOpacity(0.5),
-                //         ),
-                //       ),
-                //       Expanded(
-                //         flex: 1,
-                //         child: Container(
-                //           color: Colors.cyan.withOpacity(0.5),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // Container(
-                //   width: 111,
-                // ),
-                // Container(
-                //   /// Main Dial Center
-                //   width: 184,
-                //   // color: Colors.green.withOpacity(0.5),
-                //   child: Row(
-                //     children: <Widget>[
-                //       Expanded(
-                //         flex: 1,
-                //         child: Container(
-                //           color: Colors.pink.withOpacity(0.5),
-                //         ),
-                //       ),
-                //       Expanded(
-                //         flex: 1,
-                //         child: Container(
-                //           color: Colors.cyan.withOpacity(0.5),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-              ],
-            ),
-
-            // Example of a hand drawn with [CustomPainter].
-            // DrawnHand(
-            //   color: colors[_Element.accentColor],
-            //   thickness: 4,
-            //   size: 1,
-            //   angleRadians: _now.second * radiansPerTick,
-            // ),
-            // DrawnHand(
-            //   color: colors[_Element.highlightColor],
-            //   thickness: 4,
-            //   size: 0.9,
-            //   angleRadians: _now.minute * radiansPerTick,
-            // ),
-            // // Example of a hand drawn with [Container].
-            // ContainerHand(
-            //   color: Colors.transparent,
-            //   size: 0.5,
-            //   angleRadians: _now.hour * radiansPerHour +
-            //       (_now.minute / 60) * radiansPerHour,
-            //   child: Transform.translate(
-            //     offset: Offset(0.0, 75),
-            //     child: Container(
-            //       width: 4,
-            //       height: 150,
-            //       decoration: BoxDecoration(
-            //         color: colors[_Element.primaryColor],
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            Positioned(
-              left: 0,
-              bottom: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: weatherInfo,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
