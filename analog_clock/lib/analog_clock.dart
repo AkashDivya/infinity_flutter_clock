@@ -10,8 +10,11 @@ import 'package:flutter/semantics.dart';
 import 'package:intl/intl.dart';
 import 'package:vector_math/vector_math_64.dart' show radians;
 
-import 'container_hand.dart';
-import 'drawn_hand.dart';
+// import 'container_hand.dart';
+// import 'drawn_hand.dart';
+
+import 'custom_hand.dart';
+import 'stud.dart';
 
 /// Total distance traveled by a second or a minute hand, each second or minute,
 /// respectively.
@@ -149,7 +152,20 @@ class _AnalogClockState extends State<AnalogClock> {
                 // AM, PM Dial
                 width: 54,
                 height: 54,
-                color: Colors.pink.withOpacity(0.5),
+                child: Center(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      customHand(
+                        xOffset: 0,
+                        yOffset: -6.5,
+                        imagePath: 'assets/images/hand_ampm.png',
+                        angleRadians: 0.0,
+                      ),
+                      stud(context),
+                    ],
+                  ),
+                ),
               ),
               SizedBox(width: 115),
               Container(
@@ -158,37 +174,36 @@ class _AnalogClockState extends State<AnalogClock> {
                 height: 189,
                 child: Center(
                     child: Stack(
+                  alignment: Alignment.center,
                   children: <Widget>[
                     // Example of a hand drawn with [CustomPainter].
-                    DrawnHand(
-                      color: colors[_Element.accentColor],
-                      thickness: 4,
-                      size: 1,
-                      angleRadians: _now.second * radiansPerTick,
-                    ),
-                    DrawnHand(
-                      color: colors[_Element.highlightColor],
-                      thickness: 4,
-                      size: 0.9,
+
+                    customHand(
+                      xOffset: 0,
+                      yOffset: -32,
                       angleRadians: _now.minute * radiansPerTick,
+                      imagePath:
+                          Theme.of(context).brightness == Brightness.light
+                              ? 'assets/images/hand_min_light.png'
+                              : 'assets/images/hand_min_dark.png',
                     ),
-                    // Example of a hand drawn with [Container].
-                    ContainerHand(
-                      color: Colors.transparent,
-                      size: 0.5,
+                    customHand(
+                      xOffset: 0,
+                      yOffset: -22,
                       angleRadians: _now.hour * radiansPerHour +
                           (_now.minute / 60) * radiansPerHour,
-                      child: Transform.translate(
-                        offset: Offset(0.0, 75),
-                        child: Container(
-                          width: 4,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: colors[_Element.primaryColor],
-                          ),
-                        ),
-                      ),
+                      imagePath:
+                          Theme.of(context).brightness == Brightness.light
+                              ? 'assets/images/hand_hr_light.png'
+                              : 'assets/images/hand_hr_dark.png',
                     ),
+                    customHand(
+                      xOffset: 0,
+                      yOffset: -34,
+                      angleRadians: _now.second * radiansPerTick,
+                      imagePath: 'assets/images/hand_sec.png',
+                    ),
+                    stud(context),
                   ],
                 )),
               ),
@@ -238,7 +253,7 @@ class _AnalogClockState extends State<AnalogClock> {
           _analogClockLandscape(colors: colors),
           Positioned(
             left: 0,
-            bottom: 0,
+            top: 0,
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: weatherInfo,
