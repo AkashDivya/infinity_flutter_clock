@@ -81,6 +81,7 @@ class _AnalogClockState extends State<AnalogClock>
   var _location = '';
   var _meridiem;
   Timer _timer;
+  String _activeHr;
 
   @override
   void initState() {
@@ -125,6 +126,7 @@ class _AnalogClockState extends State<AnalogClock>
     setState(() {
       _now = DateTime.now();
       _switchMeridiem();
+      _updateActiveHr();
       // Update once per second. Make sure to do it at the beginning of each
       // new second, so that the clock is accurate.
       _timer = Timer(
@@ -150,6 +152,32 @@ class _AnalogClockState extends State<AnalogClock>
       amPmHandController.reverse();
       _meridiem = 'am';
     }
+  }
+
+  void _updateActiveHr() {
+    _activeHr = _now.hour == 01 || _now.hour == 13
+        ? '01'
+        : _now.hour == 02 || _now.hour == 14
+            ? '02'
+            : _now.hour == 03 || _now.hour == 15
+                ? '03'
+                : _now.hour == 04 || _now.hour == 16
+                    ? '04'
+                    : _now.hour == 05 || _now.hour == 17
+                        ? '05'
+                        : _now.hour == 06 || _now.hour == 18
+                            ? '06'
+                            : _now.hour == 07 || _now.hour == 19
+                                ? '07'
+                                : _now.hour == 08 || _now.hour == 20
+                                    ? '08'
+                                    : _now.hour == 09 || _now.hour == 21
+                                        ? '09'
+                                        : _now.hour == 10 || _now.hour == 22
+                                            ? '10'
+                                            : _now.hour == 11 || _now.hour == 23
+                                                ? '11'
+                                                : '12';
   }
 
   Widget _analogClockLandscape({@required colors}) {
@@ -229,6 +257,27 @@ class _AnalogClockState extends State<AnalogClock>
                 )),
               ),
             ],
+          ),
+          Center(
+            child: Opacity(
+              opacity: 0.5,
+              child: Image(
+                image: AssetImage('assets/images/infinity.png'),
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+          ),
+          Center(
+            child: Image(
+              image: AssetImage('assets/images/active_$_activeHr.png'),
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+          Center(
+            child: Image(
+              image: AssetImage('assets/images/active_$_meridiem.png'),
+              fit: BoxFit.fitWidth,
+            ),
           ),
         ],
       ),
