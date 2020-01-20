@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// This widget is used as Second's, Minute's & Hour's hand in the Main Clock.
 Widget customHand({
   @required double angleRadians,
   @required String imagePath,
@@ -32,6 +33,7 @@ Widget customHand({
   );
 }
 
+// This widget as hand that displays the current Meridiem.
 Widget customHandAmPm({
   @required Animation<double> rotationAnimation,
 }) {

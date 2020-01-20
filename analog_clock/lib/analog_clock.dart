@@ -10,7 +10,10 @@ import 'package:flutter/semantics.dart';
 import 'package:intl/intl.dart';
 import 'package:vector_math/vector_math_64.dart' show radians;
 
+// This imports widget that displays clock hands.
 import 'custom_hand.dart';
+
+// This imports center pin of the clock.
 import 'stud.dart';
 
 /// Total distance traveled by a second or a minute hand, each second or minute,
@@ -20,6 +23,8 @@ final radiansPerTick = radians(360 / 60);
 /// Total distance traveled by an hour hand, each hour, in radians.
 final radiansPerHour = radians(360 / 12);
 
+// These are Animation & Aimation Controller respectively for the hand that
+// indicates the current Meridiem.
 Animation<double> rotateAm2Pm;
 AnimationController amPmHandController;
 
@@ -38,31 +43,17 @@ final _lightTheme = {
   _Element.bgColor1: Color(0xFFc0c2c4),
   _Element.bgColor2: Color(0xFFe4e5e6),
   _Element.text: Colors.white,
-  _Element.shadow: Colors.black,
-  _Element.primaryColor: Color(0xFF4285F4),
-  // Minute hand.
-  _Element.highlightColor: Color(0xFF8AB4F8),
-  // Second hand.
-  _Element.accentColor: Color(0xFF669DF6),
-  _Element.backgroundColor: Color(0xFFD2E3FC),
 };
 
 final _darkTheme = {
   _Element.bgColor1: Color(0xFF414042),
   _Element.bgColor2: Color(0xFF5f6062),
   _Element.text: Colors.white,
-  _Element.shadow: Color(0xFF174EA6),
-  _Element.primaryColor: Color(0xFFD2E3FC),
-  // Minute hand.
-  _Element.highlightColor: Color(0xFF4285F4),
-  // Second hand.
-  _Element.accentColor: Color(0xFF8AB4F8),
-  _Element.backgroundColor: Color(0xFF3C4043),
 };
 
 /// A basic analog clock.
 ///
-/// You can do better than this!
+/// I tried to do better than this!
 class AnalogClock extends StatefulWidget {
   const AnalogClock(this.model);
 
@@ -87,11 +78,15 @@ class _AnalogClockState extends State<AnalogClock>
   void initState() {
     super.initState();
     widget.model.addListener(_updateModel);
-    // Set the initial values.
-    amPmHandController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 200));
+
+    amPmHandController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    );
+
     rotateAm2Pm =
         Tween<double>(begin: -0.25, end: 0).animate(amPmHandController);
+
     _updateMeridiem();
     _updateTime();
     _updateModel();
@@ -125,8 +120,10 @@ class _AnalogClockState extends State<AnalogClock>
   void _updateTime() {
     setState(() {
       _now = DateTime.now();
+
       _switchMeridiem();
       _updateActiveHr();
+
       // Update once per second. Make sure to do it at the beginning of each
       // new second, so that the clock is accurate.
       _timer = Timer(
@@ -136,60 +133,102 @@ class _AnalogClockState extends State<AnalogClock>
     });
   }
 
+  // Check the current meridiem and updates the clock.
   void _updateMeridiem() {
-    _meridiem = _now.hour < 12 ? 'am' : 'pm';
-    _meridiem == 'am'
-        ? amPmHandController.reverse()
-        : amPmHandController.forward();
-  }
-
-  void _switchMeridiem() {
-    _updateMeridiem();
-    if (_now.hour == 12 && _now.minute == 00 && _meridiem == 'am') {
-      amPmHandController.forward();
-      _meridiem = 'pm';
-    } else if (_now.hour == 00 && _now.minute == 00 && _meridiem == 'pm') {
-      amPmHandController.reverse();
-      _meridiem = 'am';
+    try {
+      _meridiem = _now.hour < 12 ? 'am' : 'pm';
+      _meridiem == 'am'
+          ? amPmHandController.reverse()
+          : amPmHandController.forward();
+    } catch (e) {
+      throw ('Faled to determine and update the current Meridiem. Error: $e');
     }
   }
 
-  void _updateActiveHr() {
-    _activeHr = _now.hour == 01 || _now.hour == 13
-        ? '01'
-        : _now.hour == 02 || _now.hour == 14
-            ? '02'
-            : _now.hour == 03 || _now.hour == 15
-                ? '03'
-                : _now.hour == 04 || _now.hour == 16
-                    ? '04'
-                    : _now.hour == 05 || _now.hour == 17
-                        ? '05'
-                        : _now.hour == 06 || _now.hour == 18
-                            ? '06'
-                            : _now.hour == 07 || _now.hour == 19
-                                ? '07'
-                                : _now.hour == 08 || _now.hour == 20
-                                    ? '08'
-                                    : _now.hour == 09 || _now.hour == 21
-                                        ? '09'
-                                        : _now.hour == 10 || _now.hour == 22
-                                            ? '10'
-                                            : _now.hour == 11 || _now.hour == 23
-                                                ? '11'
-                                                : '12';
+  // Updates the meridiem when it changes at 12:00 hrs & 00:00 hrs.
+  void _switchMeridiem() {
+    _updateMeridiem();
+
+    try {
+      if (_now.hour == 12 && _now.minute == 00 && _meridiem == 'am') {
+        amPmHandController.forward();
+        _meridiem = 'pm';
+      } else if (_now.hour == 00 && _now.minute == 00 && _meridiem == 'pm') {
+        amPmHandController.reverse();
+        _meridiem = 'am';
+      }
+    } catch (e) {
+      throw ('Unable to determine the current Meridiem. Error: $e');
+    }
   }
 
-  Widget _analogClockLandscape({@required colors}) {
-    return Container(
-      // Here we will update the BG Gradient
+  // This function updates the active hour on clock by changing its color.
+  void _updateActiveHr() {
+    try {
+      _activeHr = _now.hour == 01 || _now.hour == 13
+          ? '01'
+          : _now.hour == 02 || _now.hour == 14
+              ? '02'
+              : _now.hour == 03 || _now.hour == 15
+                  ? '03'
+                  : _now.hour == 04 || _now.hour == 16
+                      ? '04'
+                      : _now.hour == 05 || _now.hour == 17
+                          ? '05'
+                          : _now.hour == 06 || _now.hour == 18
+                              ? '06'
+                              : _now.hour == 07 || _now.hour == 19
+                                  ? '07'
+                                  : _now.hour == 08 || _now.hour == 20
+                                      ? '08'
+                                      : _now.hour == 09 || _now.hour == 21
+                                          ? '09'
+                                          : _now.hour == 10 || _now.hour == 22
+                                              ? '10'
+                                              : _now.hour == 11 ||
+                                                      _now.hour == 23
+                                                  ? '11'
+                                                  : '12';
+    } catch (e) {
+      throw ('Failed to update Active Hour, hence can not update the display. Error: $e');
+    }
+  }
 
+  // This function tries to determine the active hour and highlights it on
+  // the clock when it succeeds.
+  Widget _showActiveHr() {
+    return _activeHr != null
+        ? Center(
+            child: Image(
+              image: AssetImage('assets/images/active_$_activeHr.png'),
+              fit: BoxFit.fitWidth,
+            ),
+          )
+        : SizedBox(height: 0, width: 0);
+  }
+
+  // This function tries to determine the active meridiem and highlights it on
+  // the clock when it succeeds.
+  Widget _showActiveMeridiem() {
+    return _meridiem != null
+        ? Center(
+            child: Image(
+              image: AssetImage('assets/images/active_$_meridiem.png'),
+              fit: BoxFit.fitWidth,
+            ),
+          )
+        : SizedBox(height: 0, width: 0);
+  }
+
+  // This the the custom widget that displays the clock.
+  Widget _infinityAnalogClock({@required colors}) {
+    return Container(
       child: Stack(
+        // This Stack contains the Clock and its Hands.
         alignment: Alignment.center,
         children: [
-          // This Stack will contain Clock render with Dials.
+          // This contains Clock's render with dials.
           Center(
-            // Here clock render is placed.
             child: Image(
               image: AssetImage(Theme.of(context).brightness == Brightness.light
                   ? 'assets/images/clock_frame_light.png'
@@ -197,77 +236,80 @@ class _AnalogClockState extends State<AnalogClock>
               fit: BoxFit.fitWidth,
             ),
           ),
+
+          // Transform is used only to adjust dials in Portrait Mode.
           Transform.scale(
             scale: MediaQuery.of(context).orientation == Orientation.portrait
                 ? 0.75
                 : 1,
-            child: Stack(
-              alignment: Alignment.center,
+            child: Row(
+              // this Row houses both hr, min & sec hands along with the one
+              // that displays the curent meridiem.
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Row(
-                  // Here dials are placed.
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      // AM, PM Dial
-                      width: 54,
-                      height: 54,
-                      child: Center(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            customHandAmPm(rotationAnimation: rotateAm2Pm),
-                            stud(context),
-                          ],
-                        ),
+                Container(
+                  // Meridiem Hand with Center Pin
+                  width: 54,
+                  height: 54,
+                  child: Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        // Meridiem Hand
+                        customHandAmPm(rotationAnimation: rotateAm2Pm),
+                        // Center Pin.
+                        stud(context),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 115),
+                Container(
+                  // Main Clock's Hands
+                  width: 189,
+                  height: 189,
+                  child: Center(
+                      child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      // Minute's Hand.
+                      customHand(
+                        xOffset: 0,
+                        yOffset: -32,
+                        angleRadians: _now.minute * radiansPerTick,
+                        imagePath:
+                            Theme.of(context).brightness == Brightness.light
+                                ? 'assets/images/hand_min_light.png'
+                                : 'assets/images/hand_min_dark.png',
                       ),
-                    ),
-                    SizedBox(width: 115),
-                    Container(
-                      // Main clock's Dial
-                      width: 189,
-                      height: 189,
-                      child: Center(
-                          child: Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          // Example of a hand drawn with [CustomPainter].
-
-                          customHand(
-                            xOffset: 0,
-                            yOffset: -32,
-                            angleRadians: _now.minute * radiansPerTick,
-                            imagePath:
-                                Theme.of(context).brightness == Brightness.light
-                                    ? 'assets/images/hand_min_light.png'
-                                    : 'assets/images/hand_min_dark.png',
-                          ),
-                          customHand(
-                            xOffset: 0,
-                            yOffset: -22,
-                            angleRadians: _now.hour * radiansPerHour +
-                                (_now.minute / 60) * radiansPerHour,
-                            imagePath:
-                                Theme.of(context).brightness == Brightness.light
-                                    ? 'assets/images/hand_hr_light.png'
-                                    : 'assets/images/hand_hr_dark.png',
-                          ),
-                          customHand(
-                            xOffset: 0,
-                            yOffset: -34,
-                            angleRadians: _now.second * radiansPerTick,
-                            imagePath: 'assets/images/hand_sec.png',
-                          ),
-                          stud(context),
-                        ],
-                      )),
-                    ),
-                  ],
+                      // Hour's Hand.
+                      customHand(
+                        xOffset: 0,
+                        yOffset: -22,
+                        angleRadians: _now.hour * radiansPerHour +
+                            (_now.minute / 60) * radiansPerHour,
+                        imagePath:
+                            Theme.of(context).brightness == Brightness.light
+                                ? 'assets/images/hand_hr_light.png'
+                                : 'assets/images/hand_hr_dark.png',
+                      ),
+                      // Second's Hand
+                      customHand(
+                        xOffset: 0,
+                        yOffset: -34,
+                        angleRadians: _now.second * radiansPerTick,
+                        imagePath: 'assets/images/hand_sec.png',
+                      ),
+                      // Center Pin.
+                      stud(context),
+                    ],
+                  )),
                 ),
               ],
             ),
           ),
+          // This is Infinity symbol as the name of the clock.
           Center(
             child: Opacity(
               opacity:
@@ -278,20 +320,12 @@ class _AnalogClockState extends State<AnalogClock>
               ),
             ),
           ),
-          Center(
-            child: Image(
-              image: AssetImage('assets/images/active_$_activeHr.png'),
-              fit: BoxFit.fitWidth,
-            ),
-          ),
-          Center(
-            child: Image(
-              image: AssetImage('assets/images/active_$_meridiem.png'),
-              fit: BoxFit.fitWidth,
-            ),
-          ),
+          _showActiveHr(),
+          _showActiveMeridiem(),
         ],
       ),
+
+      // BG color Gradient.
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: <Color>[
@@ -331,7 +365,8 @@ class _AnalogClockState extends State<AnalogClock>
       ),
       child: Stack(
         children: <Widget>[
-          _analogClockLandscape(colors: colors),
+          // The main Clock Widget.
+          _infinityAnalogClock(colors: colors),
           Positioned(
             left: 0,
             top: 0,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// This widget acts as the Center Pin for the Clock.
 Widget stud(BuildContext context) {
   return Container(
     child: Image(
