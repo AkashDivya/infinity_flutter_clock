@@ -197,70 +197,81 @@ class _AnalogClockState extends State<AnalogClock>
               fit: BoxFit.fitWidth,
             ),
           ),
-          Row(
-            // Here dials are placed.
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                // AM, PM Dial
-                width: 54,
-                height: 54,
-                child: Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      customHandAmPm(rotationAnimation: rotateAm2Pm),
-                      stud(context),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 115),
-              Container(
-                // Main clock's Dial
-                width: 189,
-                height: 189,
-                child: Center(
-                    child: Stack(
-                  alignment: Alignment.center,
+          Transform.scale(
+            scale: MediaQuery.of(context).orientation == Orientation.portrait
+                ? 0.75
+                : 1,
+            child: Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                Row(
+                  // Here dials are placed.
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    // Example of a hand drawn with [CustomPainter].
+                    Container(
+                      // AM, PM Dial
+                      width: 54,
+                      height: 54,
+                      child: Center(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            customHandAmPm(rotationAnimation: rotateAm2Pm),
+                            stud(context),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 115),
+                    Container(
+                      // Main clock's Dial
+                      width: 189,
+                      height: 189,
+                      child: Center(
+                          child: Stack(
+                        alignment: Alignment.center,
+                        children: <Widget>[
+                          // Example of a hand drawn with [CustomPainter].
 
-                    customHand(
-                      xOffset: 0,
-                      yOffset: -32,
-                      angleRadians: _now.minute * radiansPerTick,
-                      imagePath:
-                          Theme.of(context).brightness == Brightness.light
-                              ? 'assets/images/hand_min_light.png'
-                              : 'assets/images/hand_min_dark.png',
+                          customHand(
+                            xOffset: 0,
+                            yOffset: -32,
+                            angleRadians: _now.minute * radiansPerTick,
+                            imagePath:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? 'assets/images/hand_min_light.png'
+                                    : 'assets/images/hand_min_dark.png',
+                          ),
+                          customHand(
+                            xOffset: 0,
+                            yOffset: -22,
+                            angleRadians: _now.hour * radiansPerHour +
+                                (_now.minute / 60) * radiansPerHour,
+                            imagePath:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? 'assets/images/hand_hr_light.png'
+                                    : 'assets/images/hand_hr_dark.png',
+                          ),
+                          customHand(
+                            xOffset: 0,
+                            yOffset: -34,
+                            angleRadians: _now.second * radiansPerTick,
+                            imagePath: 'assets/images/hand_sec.png',
+                          ),
+                          stud(context),
+                        ],
+                      )),
                     ),
-                    customHand(
-                      xOffset: 0,
-                      yOffset: -22,
-                      angleRadians: _now.hour * radiansPerHour +
-                          (_now.minute / 60) * radiansPerHour,
-                      imagePath:
-                          Theme.of(context).brightness == Brightness.light
-                              ? 'assets/images/hand_hr_light.png'
-                              : 'assets/images/hand_hr_dark.png',
-                    ),
-                    customHand(
-                      xOffset: 0,
-                      yOffset: -34,
-                      angleRadians: _now.second * radiansPerTick,
-                      imagePath: 'assets/images/hand_sec.png',
-                    ),
-                    stud(context),
                   ],
-                )),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
           Center(
             child: Opacity(
-              opacity: 0.5,
+              opacity:
+                  Theme.of(context).brightness == Brightness.light ? 0.4 : 1,
               child: Image(
                 image: AssetImage('assets/images/infinity.png'),
                 fit: BoxFit.fitWidth,
